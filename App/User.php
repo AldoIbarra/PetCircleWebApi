@@ -15,17 +15,25 @@ class User {
 		if($id > 0){
 			$filtro = array("UserId"=>$id);
 		}
-		$list = $orm->select($filtro, "users", "mUser", 
+		$list = $orm->select($filtro, "Users", "mUser", 
 			array(
 				"UserId"=>"UserId",
-				"Name"=>"Name",
-				"Email"=>"Email",
+				"FullName"=>"FullName",
 				"Password"=>"Password",
+				"PhoneNumber"=>"PhoneNumber",
+				"NickName"=>"NickName",
+				"Img"=>"Img",
+				"Email"=>"Email",
+				"Status"=>"Status",
 				"CreationDate"=>"CreationDate",
-				"UpdatedDate"=>"UpdatedDate",
-				"Status"=>"Status"
-			), "", "", "");
-		return iterator_to_array($list);
+				"UpdatedDate"=>"UpdatedDate"
+			));
+		$items = iterator_to_array ($list);
+		/*se convierte en base64 el contenido antes de retornar el objeto*/
+		foreach($items as $item){
+			$item->Img = "data:image/png;base64," . base64_encode($item->Img);
+		}
+		return  $items;
 	}
 
 	function Save($data){
@@ -33,23 +41,45 @@ class User {
 		if($data["UserId"] > 0){
 			$instances = $this->Users($data["UserId"]);
 			$instance = $instances[0];
-			$instance->Name = $data["Name"];
-			$instance->Email = $data["Email"];
+			$instance->FullName = $data["FullName"];
 			$instance->Password = $data["Password"];
-			$instance->UpdatedDate = $data["UpdatedDate"];
+			$instance->PhoneNumber = $data["PhoneNumber"];
+			$instance->NickName = $data["NickName"];
+			$instance->Img = $data["Img"];
+			$instance->Email = $data["Email"];
 			$instance->Status = $data["Status"];
-			return $orm->save($instance, "users", "UserId", 
-				array("UserId"=>"UserId", "Name"=>"Name", "Email"=>"Email", "Password"=>"Password", 
-					"UpdatedDate"=>"UpdatedDate", "Status"=>"Status"));
+			$instance->CreationDate = $data["CreationDate"];
+			$instance->UpdatedDate = $data["UpdatedDate"];
+
+			if(isset($instance->imagen) ){
+				$datab = $instance->Img;
+				list($type, $datab) = explode(';', $datab);
+				list(, $datab)      = explode(',', $datab);
+				//DECODIFICA 
+				$instance->Img = base64_decode($datab);
+			}
+
+			return $orm->save($instance, "Users", "UserId", 
+				array("UserId"=>"UserId", "FullName"=>"FullName", "Password"=>"Password", "PhoneNumber"=>"PhoneNumber", "NickName"=>"NickName", 
+				"Img"=>"Img", "Email"=>"Email", "Status"=>"Status", "UpdatedDate"=>"UpdatedDate"));
 		} else {
-			return $orm->save($data, "users", "UserId", 
-				array("UserId"=>"UserId", "Name"=>"Name", "Email"=>"Email", "Password"=>"Password", 
-					"CreationDate"=>"CreationDate", "UpdatedDate"=>"UpdatedDate", "Status"=>"Status"));
+
+			if(isset($instance->imagen) ){
+				$datab = $instance->Img;
+				list($type, $datab) = explode(';', $datab);
+				list(, $datab)      = explode(',', $datab);
+				//DECODIFICA 
+				$instance->Img = base64_decode($datab);
+			}
+
+			return $orm->save($data, "Users", "UserId", 
+				array("UserId"=>"UserId", "FullName"=>"FullName", "Password"=>"Password", "PhoneNumber"=>"PhoneNumber", "NickName"=>"NickName",
+				"Img"=>"Img", "Email"=>"Email", "Status"=>"Status", "CreationDate"=>"CreationDate", "UpdatedDate"=>"UpdatedDate"));
 		}
 	}
 
 	function Delete($data){
-		$sentencia = $this->db->prepare("DELETE FROM users WHERE UserId = ?");
+		$sentencia = $this->db->prepare("DELETE FROM Users WHERE UserId = ?");
 		$sentencia->bindParam(1, $data["UserId"]);
 		$sentencia->execute();
 		return "OK";

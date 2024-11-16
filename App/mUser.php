@@ -2,12 +2,15 @@
 namespace App;
 class mUser{
 	public $UserId;
-    public $Name;
-    public $Email;
+    public $FullName;
     public $Password;
+    public $PhoneNumber;
+    public $NickName;
+    public $Img;
+    public $Email;
+    public $Status;
     public $CreationDate;
     public $UpdatedDate;
-    public $Status;
 	
 	function __construct($db){
 
