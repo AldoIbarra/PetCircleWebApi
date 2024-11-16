@@ -1,0 +1,16 @@
+{
+  "name": "petcircle/isis",
+  "authors": [
+      {
+          "name": "isisflores",
+          "email": "isis.floresmontes@gmail.com"
+      }
+  ],
+  "require": {}
+,
+"autoload": {
+  "psr-4": {
+    "App\\": "App/"
+    }
+  }
+}
