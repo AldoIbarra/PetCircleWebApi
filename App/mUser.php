@@ -1,6 +1,6 @@
 <?php 
 namespace App;
-class User{
+class mUser{
 	public $UserId;
     public $Name;
     public $Email;
