@@ -4,7 +4,7 @@ namespace App;
 class Api{
 	private $db;
 	function __construct(){
-			$this->db = new \PDO("mysql:host=localhost;dbname=dataBaseName;charset=utf8mb4", "root" , "password" );	
+			$this->db = new \PDO("mysql:host=localhost;port=3306;dbname=petcircle;charset=utf8mb4", "root" , "" );	
 	}
 
 	//ES LA FUNCION QUE SE EJECUTA CUANDO USAMOS EL METODO GET EN NUESTA LLAMADA AL API
