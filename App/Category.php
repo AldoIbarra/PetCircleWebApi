@@ -21,7 +21,7 @@ class Category {
 				"Name"=>"Name",
 				"Description"=>"Description",
 				"Status"=>"Status"
-			));
+			), "", "", "", null);
 		return iterator_to_array($list);
 	}
 

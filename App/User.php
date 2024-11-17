@@ -27,7 +27,7 @@ class User {
 				"Status"=>"Status",
 				"CreationDate"=>"CreationDate",
 				"UpdatedDate"=>"UpdatedDate"
-			));
+			), "", "", "", null);
 		$items = iterator_to_array ($list);
 		/*se convierte en base64 el contenido antes de retornar el objeto*/
 		foreach($items as $item){

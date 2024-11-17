@@ -65,7 +65,7 @@ function __construct($db)
 	/**
 	* para recuperar una lista de entidades
 	*/
-	function select($filter,$tablename,$modelname, $list_properties ,$order = "", $selection = "",$page="" )
+	function select($filter,$tablename,$modelname, $list_properties ,$order = "", $selection = "",$page="", $joins )
 	{
 
         $this->table = $tablename;
@@ -83,16 +83,33 @@ function __construct($db)
             $sql_condition .= $field . " = :" . $field;
 		}
 
+		$sql_joins = " ";
+
+		foreach($joins as $join)
+		{
+			$condition = strtoupper($join["Condition"]);
+			$table = $join["Table"];
+			$primaryColumn = $join["PrimaryColum"];
+			$foreignColumn = $join["ForeignColum"];
+
+			if (!empty($join_clause)) {
+				$join_clause .= " ";
+			}
+
+			$sql_joins .= $condition . " JOIN " . $table . " ON " . $tablename . "." . $primaryColumn . " = " . $table . "." . $foreignColumn;
+
+		}
+
 
 	   $colums_names = "*";
 
 
 		if($sql_condition!="")
 		{
-			$sql_condition ="select " . $colums_names . " from " . $this->table . " where " . $sql_condition;
+			$sql_condition ="select " . $colums_names . " from " . $this->table . $sql_joins . " where " . $sql_condition;
 		}else
 		{
-				$sql_condition ="select " . $colums_names . " from " . $this->table ;
+				$sql_condition ="select " . $colums_names . " from " . $this->table . $sql_joins;
 		}
 		if( trim($order)  !="")
 		{
