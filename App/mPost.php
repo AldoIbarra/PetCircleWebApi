@@ -9,6 +9,8 @@ class mUser{
     public $CreationDate;
     public $UpdatedDate;
     public $Status;
+    public $Images = array();
+    public $Files = array();
 	
 	function __construct($db){
 

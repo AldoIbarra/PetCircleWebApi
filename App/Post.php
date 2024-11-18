@@ -29,13 +29,24 @@ class Post {
                 "Description"=>"Description",
 				"CreationDate"=>"CreationDate",
 				"UpdatedDate"=>"UpdatedDate",
-                "Status"=>"Status"
+                "Status"=>"Status",
+				"Images"=> array(
+					"ImgId"=>"ImgId",
+					"PostId"=>"PostId",
+					"Img"=>"Img"
+				),
+				"Files"=> array(
+					"FileId"=>"FileId",
+					"PostId"=>"PostId",
+					"File"=>"File"
+				)
 			), "", "", "", $joins);
 		return iterator_to_array ($list);
 	}
 
 	function Save($data){
 		$orm = new \App\Core\Model($this->db);
+		//Edita
 		if($data["PostId"] > 0){
 			$instances = $this->Posts($data["PostId"]);
 			$instance = $instances[0];
@@ -45,14 +56,10 @@ class Post {
 			$instance->Descripion = $data["Description"];
 			$instance->UpdatedDate = $data["UpdatedDate"];
 			$instance->Status = $data["Status"];
-
-			// if(isset($instance->imagen) ){
-			// 	$datab = $instance->Img;
-			// 	list($type, $datab) = explode(';', $datab);
-			// 	list(, $datab)      = explode(',', $datab);
-			// 	//DECODIFICA 
-			// 	$instance->Img = base64_decode($datab);
-			// }
+			$instance->ImgId = $data["ImgId"];
+			$instance->Img = $data["Img"];
+			$instance->FileId = $data["FileId"];
+			$instance->File = $data["File"];
 
 			return $orm->save($instance, "Posts", "PostId", 
             array(
@@ -65,6 +72,7 @@ class Post {
 				"UpdatedDate"=>"UpdatedDate",
                 "Status"=>"Status"
 			));
+			//Guarda
 		} else {
 
 			// if(isset($instance->imagen) ){
