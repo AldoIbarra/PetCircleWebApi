@@ -160,10 +160,14 @@ class Model implements \JsonSerializable{
 		}
 		 else
 		 {
-			if( isset($instance->{$modelnameid} ) )
-				{
-					$idcoc = $instance->{$modelnameid};
+			if( isset($instance->{$modelnameid} ))
+			{
+				$idcoc = $instance->{$modelnameid};
+			}else if(is_array($instance)){
+				if(isset($instance[$modelnameid])){
+					$idcoc = $instance[$modelnameid];
 				}
+			}
 		 }
 
 	   if($idcoc == 0)

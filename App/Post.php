@@ -58,7 +58,7 @@ class Post {
 			$instance->UpdatedDate = $data["UpdatedDate"];
 			$instance->Status = $data["Status"];
 
-			$PostId =  (int)$orm->save($data, "Posts", "PostId", 
+			$PostId =  $orm->save($instance, "Posts", "PostId", 
                 array(
                     "PostId"=>"PostId",
                     "UserId"=>"UserId",
@@ -70,13 +70,13 @@ class Post {
                     "Status"=>"Status"
             ));
 
-			foreach($instance->Images as $item){
-				$item->PostId = $PostId;
+			foreach($data["Images"] as $item){
+				$item["PostId"] = $instance->PostId;
 				$imgController->{"Save"}($item);
 			}
 
 			foreach($data["Files"] as $item){
-				$item->PostId = $PostId;
+				$item["PostId"] = $instance->PostId;
 				$fileController->{"Save"}($item);
 			}
 
