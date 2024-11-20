@@ -12,7 +12,6 @@ class Category {
 	function Categories($id){
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array();
-		$joins = array();
 		if($id > 0){
 			$filtro = array("CategoryId"=>$id);
 		}
@@ -22,7 +21,7 @@ class Category {
 				"Name"=>"Name",
 				"Description"=>"Description",
 				"Status"=>"Status"
-			), "", "", "", $joins);
+			), "", "", "");
 		return iterator_to_array($list);
 	}
 

@@ -10,9 +10,11 @@ class Post {
 	}
 
 	function Posts($id){
+		$imgAux = "\App\Image";
+		$imgController = new $imgAux($this->db);
+		$fileAux = "\App\File";
+		$fileController = new $fileAux($this->db);
 		$orm = new \App\Core\Model($this->db);
-        $joins = array(["Condition"=>"Left", "Table"=>"Files", "RelationColumn"=>"PostId", "Prefix"=>" p"],
-		["Condition"=>"Left", "Table"=>"Images", "RelationColumn"=>"PostId", "Prefix"=>" p"]);
 		$filtro = array();
 		if($id > 0){
 			$filtro = array("PostId"=>$id);
@@ -26,26 +28,23 @@ class Post {
                 "Description"=>"Description",
 				"CreationDate"=>"CreationDate",
 				"UpdatedDate"=>"UpdatedDate",
-                "Status"=>"Status",
-				"Images"=> array(
-					"ImgId"=>"ImgId",
-					"PostId"=>"PostId",
-					"Img"=>"Img"
-				),
-				"Files"=> array(
-					"FileId"=>"FileId",
-					"PostId"=>"PostId",
-					"File"=>"File"
-				)
-			), "", "", "", $joins);
-		return iterator_to_array ($list);
+                "Status"=>"Status"
+			), "", "", "");
+		$items = iterator_to_array ($list);
+		foreach($items as $item){
+			$item->Images = $imgController->{"PostImages"}($item->PostId);
+		}
+		foreach($items as $item){
+			$item->Files = $fileController->{"PostFiles"}($item->PostId);
+		}
+		return $items;
 	}
 
 	function Save($data){
 		$imgAux = "\App\Image";
 		$imgController = new $imgAux($this->db);
-		// $fileAux = "\App\File";
-		// $fileController = new $fileAux($this->db);
+		$fileAux = "\App\File";
+		$fileController = new $fileAux($this->db);
 		$orm = new \App\Core\Model($this->db);
 		//Edita
 		if($data["PostId"] > 0){
@@ -59,27 +58,31 @@ class Post {
 			$instance->UpdatedDate = $data["UpdatedDate"];
 			$instance->Status = $data["Status"];
 
-			// return $orm->save($instance, "Posts", "PostId", 
-            // array(
-			// 	"PostId"=>"PostId",
-            //     "UserId"=>"UserId",
-            //     "CategoryId"=>"CategoryId",
-            //     "Title"=>"Title",
-            //     "Description"=>"Description",
-			// 	"CreationDate"=>"CreationDate",
-			// 	"UpdatedDate"=>"UpdatedDate",
-            //     "Status"=>"Status"
-			// ));
-			//Guarda
-		} else {
+			$PostId =  (int)$orm->save($data, "Posts", "PostId", 
+                array(
+                    "PostId"=>"PostId",
+                    "UserId"=>"UserId",
+                    "CategoryId"=>"CategoryId",
+                    "Title"=>"Title",
+                    "Description"=>"Description",
+                    "CreationDate"=>"CreationDate",
+                    "UpdatedDate"=>"UpdatedDate",
+                    "Status"=>"Status"
+            ));
 
-			// if(isset($instance->imagen) ){
-			// 	$datab = $instance->Img;
-			// 	list($type, $datab) = explode(';', $datab);
-			// 	list(, $datab)      = explode(',', $datab);
-			// 	//DECODIFICA 
-			// 	$instance->Img = base64_decode($datab);
-			// }
+			foreach($instance->Images as $item){
+				$item->PostId = $PostId;
+				$imgController->{"Save"}($item);
+			}
+
+			foreach($data["Files"] as $item){
+				$item->PostId = $PostId;
+				$fileController->{"Save"}($item);
+			}
+
+			return $PostId;
+
+		} else {
 
 			$PostId =  (int)$orm->save($data, "Posts", "PostId", 
                 array(
@@ -98,11 +101,10 @@ class Post {
 				$imgController->{"Save"}($item);
 			}
 
-			// foreach($data["Files"] as $item){
-			// 	$item["PostId"] = $PostId;
-			// 	$item->File = "data:image/png;base64," . base64_encode($item->File);
-			// 	$fileController->{"Save"}($item);
-			// }
+			foreach($data["Files"] as $item){
+				$item["PostId"] = $PostId;
+				$fileController->{"Save"}($item);
+			}
 
 			return $PostId;
 		}

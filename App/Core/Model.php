@@ -12,23 +12,23 @@ class Model implements \JsonSerializable{
 	private $m_level = 0;
 	public $_context;
 
-function tsCurrentTime()
+	function tsCurrentTime()
 	{
 		 date_default_timezone_set("Mexico/General");
 		 return date("Y-m-d H:i:s");
 	}
 
-function __tostring()
+	function __tostring()
 	{
 		return "";
 	}
 
-public function jsonSerialize()
+	public function jsonSerialize()
 	{
 		return [];
 	}
 
-function __construct($db)
+	function __construct($db)
 	{
 		$this->_db = $db;
 	}
@@ -65,32 +65,11 @@ function __construct($db)
 	/**
 	* para recuperar una lista de entidades
 	*/
-	function select($filter,$tablename,$modelname, $list_properties ,$order = "", $selection = "",$page="", $joins )
+	function select($filter,$tablename,$modelname, $list_properties ,$order = "", $selection = "",$page="")
 	{
 
         $this->table = $tablename;
 		$this->_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-		$sql_joins = " ";
-		$prefixCondition ="";
-		$prefixQuery ="";
-
-		foreach($joins as $join)
-		{
-			$condition = strtoupper($join["Condition"]);
-			$table = $join["Table"];
-			$primaryColumn = $join["RelationColumn"];
-			$prefix = $join["Prefix"];
-
-			if (!empty($join_clause)) {
-				$join_clause .= " ";
-			}
-
-			$sql_joins .= $condition . " JOIN " . $table . " ON " . $prefix . "." . $primaryColumn . " = " . $table . "." . $primaryColumn . " ";
-
-			$prefixCondition = $prefix . ".";
-			$prefixQuery = $prefix;
-		}
 
 		$sql_condition = "";
 
@@ -101,19 +80,18 @@ function __construct($db)
             {
                 $sql_condition .= " And ";
             }
-            $sql_condition .= $prefixCondition . $field . " = :" . $field;
+            $sql_condition .= $field . " = :" . $field;
 		}
-
 
 	   $colums_names = "*";
 
 
 		if($sql_condition!="")
 		{
-			$sql_condition ="select " . $colums_names . " from " . $this->table . $prefixQuery . $sql_joins . " where " . $sql_condition;
+			$sql_condition ="select " . $colums_names . " from " . $this->table . " where " . $sql_condition;
 		}else
 		{
-				$sql_condition ="select " . $colums_names . " from " . $this->table . $prefixQuery . $sql_joins;
+				$sql_condition ="select " . $colums_names . " from " . $this->table;
 		}
 		if( trim($order)  !="")
 		{
@@ -122,7 +100,9 @@ function __construct($db)
 
         $stmt = $this->_db->prepare($sql_condition);
 
-		try{
+
+		try
+		{
 			foreach( $filter as $field => $value )
 			{
 				$storage[$field] = $value;
@@ -132,14 +112,15 @@ function __construct($db)
 
 			if($stmt->execute())
 			{
+
 				$result = $stmt->setfetchmode(\PDO::FETCH_ASSOC);
 				foreach( (new \recursivearrayiterator($stmt->fetchall())) as $key => $value )
 				{
-					$omodel = new $aus($this->_db);
-					foreach($list_properties as $keyp => $valuep)
+				  $omodel = new $aus($this->_db);
+				foreach($list_properties as $keyp => $valuep)
 					{
-						$keyp_db = $valuep;
-						if(!is_array($keyp_db)){
+							$keyp_db = $valuep;
+
 							if(isset($value[$keyp_db]) )// -- valida si existe el campo
 							{
 								$omodel->{$keyp} = $value[$keyp_db];
@@ -149,39 +130,13 @@ function __construct($db)
 									$omodel->{$keyp} = $value[$keyp];
 								}
 							}
-						}else{
-							foreach($keyp_db as $arrayValues)
-							{
-								$tempVar = $arrayValues;
-								if(isset($value[$tempVar]) )// -- valida si existe el campo
-								{
-									$omodel->{$keyp} = $value[$$tempVar];
-								}else{
-									if(isset($value[$keyp]) )// -- valida si existe el campo
-									{
-										$omodel->{$keyp} = $value[$keyp];
-									}
-								}
-								// $arrayKeyp_db = $arrayValuep;
-								// if(isset($value[$arrayKeyp_db]) )// -- valida si existe el campo
-								// {
-								// 	$omodel->{$arrrayKeyp} = $value[$arrayKeyp_db];
-								// }else{
-								// 	if(isset($value[$arrrayKeyp]) )// -- valida si existe el campo
-								// 	{
-								// 		$omodel->{$arrrayKeyp} = $value[$arrrayKeyp];
-								// 	}
-								// }
-							}
-						}
-
-						
 					}
 					yield $omodel;
 				}
 			}
-		}catch(\exception $e){
-		 	throw new \exception("bad select in ..."   );
+		}catch(\exception $e)
+		{
+			 throw new \exception("bad select in ..."   );
 		}
 	}
 
@@ -248,7 +203,7 @@ function __construct($db)
 	* para insertar una entidad
 	*/
     private function addnew($instance, $tablename, $id, $list_properties)
-   {
+   	{
 
 		$modelnameid = $id;
 		$sql = "INSERT INTO " . $this->table  . "  ";
@@ -291,7 +246,7 @@ function __construct($db)
 /**
 * para borrar una entidad
 */
-function delete()
+	function delete()
 	{
 		$modelname =  get_class($this);
 		$modelnameid = explode("\\", $modelname)[1];
@@ -323,24 +278,24 @@ function delete()
 		}
 	}
 
- function shrink($props)
- {
-	 $modelname =  get_class( $this);
-	   foreach($props as $key => $val )
-	   {
-			if( array_key_exists(  $key , $this->_context->ssd[$modelname] )  )
-			{
-			  $s = 1;
-			}
-			else
-			{
-				 if($key!="modelname"){
-				    unset($props[$key]);
-				 }
-			}
-	   }
-    $trivial_tql_schema[$modelname] = $props;
-	 return $props;
- }
+ 	function shrink($props)
+ 	{
+		$modelname =  get_class( $this);
+		foreach($props as $key => $val )
+		{
+				if( array_key_exists(  $key , $this->_context->ssd[$modelname] )  )
+				{
+				$s = 1;
+				}
+				else
+				{
+					if($key!="modelname"){
+						unset($props[$key]);
+					}
+				}
+		}
+		$trivial_tql_schema[$modelname] = $props;
+		return $props;
+ 	}
 }
 ?>

@@ -11,7 +11,6 @@ class Image {
 
 	function Images($id){
 		$orm = new \App\Core\Model($this->db);
-        $joins = array();
 		$filtro = array();
 		if($id > 0){
 			$filtro = array("ImgId"=>$id);
@@ -21,7 +20,27 @@ class Image {
                 "ImgId"=>"ImgId",
 				"PostId"=>"PostId",
                 "Img"=>"Img"
-			), "", "", "", $joins);
+			), "", "", "");
+        $items = iterator_to_array ($list);
+        /*se convierte en base64 el contenido antes de retornar el objeto*/
+        foreach($items as $item){
+            $item->Img = "data:image/png;base64," . base64_encode($item->Img);
+        }
+        return  $items;
+	}
+
+	function PostImages($id){
+		$orm = new \App\Core\Model($this->db);
+		$filtro = array();
+		if($id > 0){
+			$filtro = array("PostId"=>$id);
+		}
+		$list = $orm->select($filtro, "Images", "mImage", 
+			array(
+                "ImgId"=>"ImgId",
+				"PostId"=>"PostId",
+                "Img"=>"Img"
+			), "", "", "");
         $items = iterator_to_array ($list);
         /*se convierte en base64 el contenido antes de retornar el objeto*/
         foreach($items as $item){

@@ -12,7 +12,6 @@ class User {
 	function Users($id){
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array();
-		$joins = array();
 		if($id > 0){
 			$filtro = array("UserId"=>$id);
 		}
@@ -28,7 +27,7 @@ class User {
 				"Status"=>"Status",
 				"CreationDate"=>"CreationDate",
 				"UpdatedDate"=>"UpdatedDate"
-			), "", "", "", $joins);
+			), "", "", "");
 		$items = iterator_to_array ($list);
 		/*se convierte en base64 el contenido antes de retornar el objeto*/
 		foreach($items as $item){
