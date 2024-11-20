@@ -1,6 +1,6 @@
 <?php 
 namespace App;
-class mUser{
+class mPost{
     public $PostId;
 	public $UserId;
     public $CategoryId;

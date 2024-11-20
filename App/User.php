@@ -12,6 +12,7 @@ class User {
 	function Users($id){
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array();
+		$joins = array();
 		if($id > 0){
 			$filtro = array("UserId"=>$id);
 		}
@@ -27,7 +28,7 @@ class User {
 				"Status"=>"Status",
 				"CreationDate"=>"CreationDate",
 				"UpdatedDate"=>"UpdatedDate"
-			), "", "", "", null);
+			), "", "", "", $joins);
 		$items = iterator_to_array ($list);
 		/*se convierte en base64 el contenido antes de retornar el objeto*/
 		foreach($items as $item){
@@ -51,7 +52,7 @@ class User {
 			$instance->CreationDate = $data["CreationDate"];
 			$instance->UpdatedDate = $data["UpdatedDate"];
 
-			if(isset($instance->imagen) ){
+			if(isset($instance->Img) ){
 				$datab = $instance->Img;
 				list($type, $datab) = explode(';', $datab);
 				list(, $datab)      = explode(',', $datab);
@@ -64,12 +65,12 @@ class User {
 				"Img"=>"Img", "Email"=>"Email", "Status"=>"Status", "UpdatedDate"=>"UpdatedDate"));
 		} else {
 
-			if(isset($instance->imagen) ){
-				$datab = $instance->Img;
+			if(isset($data["Img"])){
+				$datab = $data["Img"];
 				list($type, $datab) = explode(';', $datab);
 				list(, $datab)      = explode(',', $datab);
 				//DECODIFICA 
-				$instance->Img = base64_decode($datab);
+				$data["Img"] = base64_decode($datab);
 			}
 
 			return $orm->save($data, "Users", "UserId", 

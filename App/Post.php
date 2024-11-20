@@ -11,11 +11,8 @@ class Post {
 
 	function Posts($id){
 		$orm = new \App\Core\Model($this->db);
-        $joins = array();
-        if($id > 0){
-            $joins = array(["Condition"=>"Inner", "Table"=>"Files", "PrimaryColum"=>"FileId", "ForeignColum"=>"PostId"],
-            ["Condition"=>"Inner", "Table"=>"Images", "PrimaryColum"=>"ImgId", "ForeignColum"=>"PostId"]);
-        }
+        $joins = array(["Condition"=>"Left", "Table"=>"Files", "RelationColumn"=>"PostId", "Prefix"=>" p"],
+		["Condition"=>"Left", "Table"=>"Images", "RelationColumn"=>"PostId", "Prefix"=>" p"]);
 		$filtro = array();
 		if($id > 0){
 			$filtro = array("PostId"=>$id);
@@ -45,6 +42,10 @@ class Post {
 	}
 
 	function Save($data){
+		$imgAux = "\App\Image";
+		$imgController = new $imgAux($this->db);
+		// $fileAux = "\App\File";
+		// $fileController = new $fileAux($this->db);
 		$orm = new \App\Core\Model($this->db);
 		//Edita
 		if($data["PostId"] > 0){
@@ -54,24 +55,21 @@ class Post {
 			$instance->CategoryId = $data["CategoryId"];
 			$instance->Title = $data["Title"];
 			$instance->Descripion = $data["Description"];
+			$instance->CreationDate = $data["CreationDate"];
 			$instance->UpdatedDate = $data["UpdatedDate"];
 			$instance->Status = $data["Status"];
-			$instance->ImgId = $data["ImgId"];
-			$instance->Img = $data["Img"];
-			$instance->FileId = $data["FileId"];
-			$instance->File = $data["File"];
 
-			return $orm->save($instance, "Posts", "PostId", 
-            array(
-				"PostId"=>"PostId",
-                "UserId"=>"UserId",
-                "CategoryId"=>"CategoryId",
-                "Title"=>"Title",
-                "Description"=>"Description",
-				"CreationDate"=>"CreationDate",
-				"UpdatedDate"=>"UpdatedDate",
-                "Status"=>"Status"
-			));
+			// return $orm->save($instance, "Posts", "PostId", 
+            // array(
+			// 	"PostId"=>"PostId",
+            //     "UserId"=>"UserId",
+            //     "CategoryId"=>"CategoryId",
+            //     "Title"=>"Title",
+            //     "Description"=>"Description",
+			// 	"CreationDate"=>"CreationDate",
+			// 	"UpdatedDate"=>"UpdatedDate",
+            //     "Status"=>"Status"
+			// ));
 			//Guarda
 		} else {
 
@@ -83,7 +81,7 @@ class Post {
 			// 	$instance->Img = base64_decode($datab);
 			// }
 
-			return $orm->save($data, "Posts", "PostId", 
+			$PostId =  (int)$orm->save($data, "Posts", "PostId", 
                 array(
                     "PostId"=>"PostId",
                     "UserId"=>"UserId",
@@ -93,7 +91,20 @@ class Post {
                     "CreationDate"=>"CreationDate",
                     "UpdatedDate"=>"UpdatedDate",
                     "Status"=>"Status"
-                ));
+            ));
+
+			foreach($data["Images"] as $item){
+				$item["PostId"] = $PostId;
+				$imgController->{"Save"}($item);
+			}
+
+			// foreach($data["Files"] as $item){
+			// 	$item["PostId"] = $PostId;
+			// 	$item->File = "data:image/png;base64," . base64_encode($item->File);
+			// 	$fileController->{"Save"}($item);
+			// }
+
+			return $PostId;
 		}
 	}
 

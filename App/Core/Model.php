@@ -71,6 +71,27 @@ function __construct($db)
         $this->table = $tablename;
 		$this->_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
+		$sql_joins = " ";
+		$prefixCondition ="";
+		$prefixQuery ="";
+
+		foreach($joins as $join)
+		{
+			$condition = strtoupper($join["Condition"]);
+			$table = $join["Table"];
+			$primaryColumn = $join["RelationColumn"];
+			$prefix = $join["Prefix"];
+
+			if (!empty($join_clause)) {
+				$join_clause .= " ";
+			}
+
+			$sql_joins .= $condition . " JOIN " . $table . " ON " . $prefix . "." . $primaryColumn . " = " . $table . "." . $primaryColumn . " ";
+
+			$prefixCondition = $prefix . ".";
+			$prefixQuery = $prefix;
+		}
+
 		$sql_condition = "";
 
         foreach( $filter as $field => $value )
@@ -80,24 +101,7 @@ function __construct($db)
             {
                 $sql_condition .= " And ";
             }
-            $sql_condition .= $field . " = :" . $field;
-		}
-
-		$sql_joins = " ";
-
-		foreach($joins as $join)
-		{
-			$condition = strtoupper($join["Condition"]);
-			$table = $join["Table"];
-			$primaryColumn = $join["PrimaryColum"];
-			$foreignColumn = $join["ForeignColum"];
-
-			if (!empty($join_clause)) {
-				$join_clause .= " ";
-			}
-
-			$sql_joins .= $condition . " JOIN " . $table . " ON " . $tablename . "." . $primaryColumn . " = " . $table . "." . $foreignColumn;
-
+            $sql_condition .= $prefixCondition . $field . " = :" . $field;
 		}
 
 
@@ -106,10 +110,10 @@ function __construct($db)
 
 		if($sql_condition!="")
 		{
-			$sql_condition ="select " . $colums_names . " from " . $this->table . $sql_joins . " where " . $sql_condition;
+			$sql_condition ="select " . $colums_names . " from " . $this->table . $prefixQuery . $sql_joins . " where " . $sql_condition;
 		}else
 		{
-				$sql_condition ="select " . $colums_names . " from " . $this->table . $sql_joins;
+				$sql_condition ="select " . $colums_names . " from " . $this->table . $prefixQuery . $sql_joins;
 		}
 		if( trim($order)  !="")
 		{
@@ -118,8 +122,7 @@ function __construct($db)
 
         $stmt = $this->_db->prepare($sql_condition);
 
-
-		 try{
+		try{
 			foreach( $filter as $field => $value )
 			{
 				$storage[$field] = $value;
@@ -129,15 +132,14 @@ function __construct($db)
 
 			if($stmt->execute())
 			{
-
 				$result = $stmt->setfetchmode(\PDO::FETCH_ASSOC);
 				foreach( (new \recursivearrayiterator($stmt->fetchall())) as $key => $value )
 				{
-				  $omodel = new $aus($this->_db);
-				foreach($list_properties as $keyp => $valuep)
+					$omodel = new $aus($this->_db);
+					foreach($list_properties as $keyp => $valuep)
 					{
-							$keyp_db = $valuep;
-
+						$keyp_db = $valuep;
+						if(!is_array($keyp_db)){
 							if(isset($value[$keyp_db]) )// -- valida si existe el campo
 							{
 								$omodel->{$keyp} = $value[$keyp_db];
@@ -147,13 +149,39 @@ function __construct($db)
 									$omodel->{$keyp} = $value[$keyp];
 								}
 							}
+						}else{
+							foreach($keyp_db as $arrayValues)
+							{
+								$tempVar = $arrayValues;
+								if(isset($value[$tempVar]) )// -- valida si existe el campo
+								{
+									$omodel->{$keyp} = $value[$$tempVar];
+								}else{
+									if(isset($value[$keyp]) )// -- valida si existe el campo
+									{
+										$omodel->{$keyp} = $value[$keyp];
+									}
+								}
+								// $arrayKeyp_db = $arrayValuep;
+								// if(isset($value[$arrayKeyp_db]) )// -- valida si existe el campo
+								// {
+								// 	$omodel->{$arrrayKeyp} = $value[$arrayKeyp_db];
+								// }else{
+								// 	if(isset($value[$arrrayKeyp]) )// -- valida si existe el campo
+								// 	{
+								// 		$omodel->{$arrrayKeyp} = $value[$arrrayKeyp];
+								// 	}
+								// }
+							}
+						}
+
+						
 					}
 					yield $omodel;
 				}
 			}
-		 }catch(\exception $e)
-		 {
-			 throw new \exception("bad select in ..."   );
+		}catch(\exception $e){
+		 	throw new \exception("bad select in ..."   );
 		}
 	}
 

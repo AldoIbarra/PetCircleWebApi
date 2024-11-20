@@ -12,6 +12,7 @@ class Category {
 	function Categories($id){
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array();
+		$joins = array();
 		if($id > 0){
 			$filtro = array("CategoryId"=>$id);
 		}
@@ -21,7 +22,7 @@ class Category {
 				"Name"=>"Name",
 				"Description"=>"Description",
 				"Status"=>"Status"
-			), "", "", "", null);
+			), "", "", "", $joins);
 		return iterator_to_array($list);
 	}
 
@@ -36,7 +37,7 @@ class Category {
 			return $orm->save($instance, "Categories", "CategoryId", 
 				array("CategoryId"=>"CategoryId", "Name"=>"Name", "Description"=>"Description","Status"=>"Status"));
 		} else {
-			return $orm->save($data, "categories", "CategoryId", 
+			return $orm->save($data, "Categories", "CategoryId", 
 				array("CategoryId"=>"CategoryId", "Name"=>"Name", "Description"=>"Description","Status"=>"Status"));
 		}
 	}
