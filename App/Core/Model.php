@@ -2,6 +2,8 @@
 
 namespace App\Core;
 class Model implements \JsonSerializable{
+	private $_db;
+	
 	// -- nombre de la tabla en la base de datos
     public $table = "";
 	public $columnid = "";
@@ -23,7 +25,7 @@ class Model implements \JsonSerializable{
 		return "";
 	}
 
-	public function jsonSerialize()
+	public function jsonSerialize(): mixed
 	{
 		return [];
 	}

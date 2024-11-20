@@ -62,7 +62,8 @@ class User {
 			return $orm->save($instance, "Users", "UserId", 
 				array("UserId"=>"UserId", "FullName"=>"FullName", "Password"=>"Password", "PhoneNumber"=>"PhoneNumber", "NickName"=>"NickName", 
 				"Img"=>"Img", "Email"=>"Email", "Status"=>"Status", "UpdatedDate"=>"UpdatedDate"));
-		} else {
+		}
+		else {
 
 			if(isset($data["Img"])){
 				$datab = $data["Img"];

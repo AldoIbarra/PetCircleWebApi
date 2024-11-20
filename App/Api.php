@@ -33,12 +33,22 @@ class Api{
 	*/
 
 	//IMPORTANTE PARA QUE ESTO FUNCION ES USAR EL HEADER (application/json)
- function getdataparamaters_json()
+	function getdataparamaters_json()
 	{
-	  $json_params = file_get_contents("php://input");
-	  $json_params  = utf8_encode($json_params);
-	  $dd = json_decode( $json_params, true  );
-	  return $dd;
+			// Lee el contenido del body de la solicitud
+			$json_params = file_get_contents("php://input");
+	
+			// Asegúrate de que no esté vacío o nulo antes de intentar convertirlo
+			if ($json_params !== false && !empty($json_params)) {
+					// Aquí usamos mb_convert_encoding() solo si el contenido no está vacío
+					$json_params = mb_convert_encoding($json_params, 'UTF-8', 'auto');
+			}
+	
+			// Decodifica el JSON recibido
+			$dd = json_decode($json_params, true);
+	
+			// Devuelve los parámetros decodificados
+			return $dd;
 	}
 }
 ?>
