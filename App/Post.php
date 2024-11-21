@@ -12,8 +12,6 @@ class Post {
 	function Posts($id){
 		$imgAux = "\App\Image";
 		$imgController = new $imgAux($this->db);
-		$fileAux = "\App\File";
-		$fileController = new $fileAux($this->db);
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array();
 		if($id > 0){
@@ -34,17 +32,12 @@ class Post {
 		foreach($items as $item){
 			$item->Images = $imgController->{"PostImages"}($item->PostId);
 		}
-		foreach($items as $item){
-			$item->Files = $fileController->{"PostFiles"}($item->PostId);
-		}
 		return $items;
 	}
 
 	function Save($data){
 		$imgAux = "\App\Image";
 		$imgController = new $imgAux($this->db);
-		$fileAux = "\App\File";
-		$fileController = new $fileAux($this->db);
 		$orm = new \App\Core\Model($this->db);
 		//Edita
 		if($data["PostId"] > 0){
@@ -75,11 +68,6 @@ class Post {
 				$imgController->{"Save"}($item);
 			}
 
-			foreach($data["Files"] as $item){
-				$item["PostId"] = $instance->PostId;
-				$fileController->{"Save"}($item);
-			}
-
 			return $PostId;
 
 		} else {
@@ -99,11 +87,6 @@ class Post {
 			foreach($data["Images"] as $item){
 				$item["PostId"] = $PostId;
 				$imgController->{"Save"}($item);
-			}
-
-			foreach($data["Files"] as $item){
-				$item["PostId"] = $PostId;
-				$fileController->{"Save"}($item);
 			}
 
 			return $PostId;
