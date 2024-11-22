@@ -13,9 +13,9 @@ class Post {
 		$imgAux = "\App\Image";
 		$imgController = new $imgAux($this->db);
 		$orm = new \App\Core\Model($this->db);
-		$filtro = array();
+		$filtro = array("Status" => 1);
 		if($id > 0){
-			$filtro = array("PostId"=>$id);
+			$filtro["PostId"] = $id;
 		}
 		$list = $orm->select($filtro, "Posts", "mPost", 
 			array(
@@ -98,6 +98,24 @@ class Post {
 		$sentencia->bindParam(1, $data["PostId"]);
 		$sentencia->execute();
 		return "OK";
+	}
+
+	function UpdateStatus($data){
+		$orm = new \App\Core\Model($this->db);
+		if($data["PostId"] > 0){
+			$instances = $this->Posts($data["PostId"]);
+			$instance = $instances[0];
+			$instance->Status = $data["Status"];
+
+			$PostId =  $orm->save($instance, "Posts", "PostId", 
+                array(
+                    "PostId"=>"PostId",
+                    "Status"=>"Status"
+            ));
+
+			return $PostId;
+
+		}
 	}
 }
 ?>

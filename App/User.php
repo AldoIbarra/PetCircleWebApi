@@ -37,36 +37,35 @@ class User {
 	}
 
 	function UserByEmail($email){
-    $orm = new \App\Core\Model($this->db);
-    $filtro = array();
-    
-    if (!empty($email)) {
-        // Cambiar filtro para buscar por correo electrónico
-        $filtro = array("Email" => $email);
-    }
-    
-    $list = $orm->select($filtro, "Users", "mUser", 
-        array(
-            "UserId" => "UserId",
-            "FullName" => "FullName",
-            "Password" => "Password",
-            "PhoneNumber" => "PhoneNumber",
-            "NickName" => "NickName",
-            "Img" => "Img",
-            "Email" => "Email",
-            "Status" => "Status",
-            "CreationDate" => "CreationDate",
-            "UpdatedDate" => "UpdatedDate"
-        ), "", "", "");
+		$orm = new \App\Core\Model($this->db);
+		if (empty($email)) {
+			return [];
+		}
+		$filtro = array("Email" => $email,
+						"Status" => 1);
+		
+		$list = $orm->select($filtro, "Users", "mUser", 
+			array(
+				"UserId" => "UserId",
+				"FullName" => "FullName",
+				"Password" => "Password",
+				"PhoneNumber" => "PhoneNumber",
+				"NickName" => "NickName",
+				"Img" => "Img",
+				"Email" => "Email",
+				"Status" => "Status",
+				"CreationDate" => "CreationDate",
+				"UpdatedDate" => "UpdatedDate"
+			), "", "", "");
 
-    $items = iterator_to_array($list);
+		$items = iterator_to_array($list);
 
-    // Se convierte en base64 el contenido antes de retornar el objeto
-    foreach($items as $item){
-        $item->Img = "data:image/png;base64," . base64_encode($item->Img);
-    }
+		// Se convierte en base64 el contenido antes de retornar el objeto
+		foreach($items as $item){
+			$item->Img = "data:image/png;base64," . base64_encode($item->Img);
+		}
 
-    return $items;
+		return $items;
 	}
 
 	function Save($data){
@@ -117,6 +116,23 @@ class User {
 		$sentencia->bindParam(1, $data["UserId"]);
 		$sentencia->execute();
 		return "OK";
+	}
+
+	function UpdateStatus($data){
+		$orm = new \App\Core\Model($this->db);
+		if($data["UserId"] > 0){
+			$instances = $this->Users($data["UserId"]);
+			$instance = $instances[0];
+			$instance->Status = $data["Status"];
+			$instance->UpdatedDate = $data["UpdatedDate"];
+
+
+			return $orm->save($instance, "Users", "UserId", 
+				array("UserId"=>"UserId", 
+				"Status"=>"Status", 
+				"UpdatedDate"=>"UpdatedDate"));
+
+		}
 	}
 }
 ?>
