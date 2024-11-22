@@ -46,7 +46,7 @@ class Post {
 			$instance->UserId = $data["UserId"];
 			$instance->CategoryId = $data["CategoryId"];
 			$instance->Title = $data["Title"];
-			$instance->Descripion = $data["Description"];
+			$instance->Description = $data["Description"];
 			$instance->CreationDate = $data["CreationDate"];
 			$instance->UpdatedDate = $data["UpdatedDate"];
 			$instance->Status = $data["Status"];
