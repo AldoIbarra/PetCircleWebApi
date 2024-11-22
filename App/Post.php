@@ -12,6 +12,8 @@ class Post {
 	function Posts($id){
 		$imgAux = "\App\Image";
 		$imgController = new $imgAux($this->db);
+		$categoryAux = "\App\Category";
+		$categoryController = new $categoryAux($this->db);
 		$orm = new \App\Core\Model($this->db);
 		$filtro = array("Status" => 1);
 		if($id > 0){
@@ -31,6 +33,13 @@ class Post {
 		$items = iterator_to_array ($list);
 		foreach($items as $item){
 			$item->Images = $imgController->{"PostImages"}($item->PostId);
+		}
+		foreach($items as $item){
+			if(!empty($item->CategoryId)){
+				$item->CategoryName = $categoryController->{"CategoryNameById"}($item->CategoryId);
+			}else{
+				$item->CategoryName = "";
+			}
 		}
 		return $items;
 	}
@@ -116,6 +125,41 @@ class Post {
 			return $PostId;
 
 		}
+	}
+
+	function PostsByCategoryId($id){
+		$imgAux = "\App\Image";
+		$imgController = new $imgAux($this->db);
+		$categoryAux = "\App\Category";
+		$categoryController = new $categoryAux($this->db);
+		$orm = new \App\Core\Model($this->db);
+		$filtro = array("Status" => 1);
+		if($id > 0){
+			$filtro["CategoryId"] = $id;
+		}
+		$list = $orm->select($filtro, "Posts", "mPost", 
+			array(
+				"PostId"=>"PostId",
+                "UserId"=>"UserId",
+                "CategoryId"=>"CategoryId",
+                "Title"=>"Title",
+                "Description"=>"Description",
+				"CreationDate"=>"CreationDate",
+				"UpdatedDate"=>"UpdatedDate",
+                "Status"=>"Status"
+			), "", "", "");
+		$items = iterator_to_array ($list);
+		foreach($items as $item){
+			$item->Images = $imgController->{"PostImages"}($item->PostId);
+		}
+		foreach($items as $item){
+			if(!empty($item->CategoryId)){
+				$item->CategoryName = $categoryController->{"CategoryNameById"}($item->CategoryId);
+			}else{
+				$item->CategoryName = "";
+			}
+		}
+		return $items;
 	}
 }
 ?>

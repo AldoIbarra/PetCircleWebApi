@@ -47,5 +47,18 @@ class Category {
 		$sentencia->execute();
 		return "OK";
 	}
+
+	function CategoryNameById($id){
+		$orm = new \App\Core\Model($this->db);
+		$filtro = array("CategoryId"=>$id);
+
+		$list = $orm->select($filtro, "Categories", "mCategory", 
+			array(
+				"CategoryId"=>"CategoryId",
+				"Name"=>"Name",
+			), "", "", "");
+		$result =  iterator_to_array($list);
+		return $result[0]->Name;
+	}
 }
 ?>

@@ -10,6 +10,7 @@ class mPost{
     public $UpdatedDate;
     public $Status;
     public $Images = array();
+    public $CategoryName;
 	
 	function __construct($db){
 
