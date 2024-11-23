@@ -161,5 +161,61 @@ class Post {
 		}
 		return $items;
 	}
+
+
+
+	function PostsByUserId($userId) {
+    $imgAux = "\App\Image";
+    $imgController = new $imgAux($this->db);
+    $categoryAux = "\App\Category";
+    $categoryController = new $categoryAux($this->db);
+    $orm = new \App\Core\Model($this->db);
+
+    // Filtro para seleccionar solo posts activos y del usuario dado
+    $filtro = array("Status" => 1);
+    if ($userId > 0) {
+        $filtro["UserId"] = $userId;
+    }
+
+    // Consulta a la tabla Posts
+    $list = $orm->select($filtro, "Posts", "mPost", 
+        array(
+            "PostId" => "PostId",
+            "UserId" => "UserId",
+            "CategoryId" => "CategoryId",
+            "Title" => "Title",
+            "Description" => "Description",
+            "CreationDate" => "CreationDate",
+            "UpdatedDate" => "UpdatedDate",
+            "Status" => "Status"
+        ), 
+        "", "", ""
+    );
+
+    // Convierte el resultado en un array
+    $items = iterator_to_array($list);
+
+    // Añadir imágenes y nombres de categoría a cada post
+    foreach ($items as $item) {
+        // Obtener imágenes asociadas al post
+        $item->Images = $imgController->{"PostImages"}($item->PostId);
+
+        // Obtener nombre de la categoría si existe
+        if (!empty($item->CategoryId)) {
+            $item->CategoryName = $categoryController->{"CategoryNameById"}($item->CategoryId);
+        } else {
+            $item->CategoryName = "";
+        }
+    }
+
+    return $items;
+	}
+
+
+
+
+
+
+
 }
 ?>
