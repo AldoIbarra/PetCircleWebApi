@@ -211,6 +211,26 @@ class Post {
     return $items;
 	}
 
+	function UpdatePostInfo($data){
+		$orm = new \App\Core\Model($this->db);
+		if($data["PostId"] > 0){
+			$instances = $this->Posts($data["PostId"]);
+			$instance = $instances[0];
+			$instance->Title = $data["Title"];
+			$instance->Description = $data["Description"];
+
+			$PostId =  $orm->save($instance, "Posts", "PostId", 
+                array(
+                    "PostId"=>"PostId",
+                    "Title"=>"Title",
+                    "Description"=>"Description"
+            ));
+
+			return $PostId;
+
+		}
+	}
+
 
 
 
